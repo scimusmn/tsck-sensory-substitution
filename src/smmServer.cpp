@@ -133,7 +133,6 @@ void smmServer::handleEvent(struct mg_connection* connection,
       else if ( strstr(message->uri.p, "/get/") == message->uri.p ) {
         char callbackKey[256];
         strncpy(callbackKey, message->uri.p + 5, message->uri.len - 5);
-        std::cout << callbackKey << std::endl;
         callback_t callback = server->retrieveGetCallback(callbackKey);
         if (callback != NULL) {
           callback(httpMessage(connection, message, server->httpServerOptions), server->userData);
@@ -150,8 +149,8 @@ void smmServer::handleEvent(struct mg_connection* connection,
     }
   case MG_EV_SEND:
     {
-      int* bytes = (int*) eventData;
-      std::cout << "sent " << *bytes << " bytes\n";
+      // do nothing
+      break;
     }
   default:
     {

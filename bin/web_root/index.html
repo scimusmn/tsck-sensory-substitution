@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="smm-icon.svg">
+
+    <link rel="stylesheet" href="css/jquery.range.css">
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jquery.lcnCircleRangeSelect.min.js"></script>
+    <script src="js/jquery.range-min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('input.circle-range-select').lcnCircleRangeSelect();
+        $('input.jquery-range').jRange({
+          from: 0,
+          to: 255,
+          step: 1,
+          isRange: true,
+          theme: 'theme-config',
+        }).jRange('setValue','0,255');
+      });
+    </script>
+    
+    <title>Sensory Substitution Configuration</title>
+  </head>
+  
+  <body>
+    <noscript>
+      <span class="noscript bg-light">
+        Sorry! This page won't work without scripts.
+      </span>
+    </noscript>
+    <div class="bg-primary navbar">
+      <div class="home-menu pure-menu pure-menu-horizontal">
+        <span>
+          <img src="smm-light.svg" width="20em">
+          <strong>Sensory Substitution Configuration</strong>
+        </span>
+        
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item mx-1"><a href="#!">&#128190; Save</a></li>
+          <li class="pure-menu-item mx-1"><a href="help.html">&#10067; Help</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="pure-g bg-light">
+
+      <div class="pure-u-1 pure-u-xl-1-2">
+        <h3 class="m-1">Ball Color Thresholding</h3>
+        <div class="pure-g border-primary mx-1 p-1">
+          <div class="pure-u-1 pure-u-md-1-2">
+            <div style="text-align: center">
+              <div style="text-align: left; display: inline-block">
+                <h4>Hue</h4>
+                <input class="circle-range-select"
+                       id="ballHueRange"
+                       type="text"
+                       value="0;179"
+                       data-min="0"
+                       data-max="179"
+                       data-unit="">
+              </div>
+            </div>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-2">
+            <div class="m-1" style="text-align: center">
+              <div style="text-align: left; display: inline-block">
+                <h4>Saturation</h4>
+                <input id="ballSatRange" class="jquery-range" hidden>
+                <br>
+                <h4>Value</h4>
+                <input id="ballValRange" class="jquery-range" hidden>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pure-u-1 pure-u-xl-1-2">
+        <h3 class="m-1">Background Color Thresholding</h3>
+        <div class="pure-g border-primary mx-1 p-1">
+          <div class="pure-u-1 pure-u-md-1-2">
+            <div style="text-align: center">
+              <div style="text-align: left; display: inline-block">
+                <h4>Hue</h4>
+                <input class="circle-range-select"
+                       id="bgHueRange"
+                       type="text"
+                       value="0;179"
+                       data-min="0"
+                       data-max="179"
+                       data-unit="">
+              </div>
+            </div>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-2">
+            <div class="m-1" style="text-align: center">
+              <div style="text-align: left; display: inline-block">
+                <h4>Saturation</h4>
+                <input id="bgSatRange" class="jquery-range" hidden>
+                <br>
+                <h4>Value</h4>
+                <input id="bgValRange" class="jquery-range" hidden>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pure-u-1-1">
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+        <p>Hello.</p>
+      </div>
+      
+    </div>
+  </body>
+</head>
+      
+    

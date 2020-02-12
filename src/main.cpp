@@ -16,17 +16,18 @@ extern "C" {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 struct thresholdSettings {
-  unsigned int hueMax;   
-  unsigned int satMax;   
-  unsigned int valMax;   
-  unsigned int hueMin;   
-  unsigned int satMin;   
-  unsigned int valMin;   
-  unsigned int erosions; 
-  unsigned int dilations;
+  int hueMax;   
+  int satMax;   
+  int valMax;   
+  int hueMin;   
+  int satMin;   
+  int valMin;   
+  int erosions; 
+  int dilations;
 };
 
 struct glob {
+  std::string settingsFile;
   std::mutex access;
   cv::VideoCapture camera;
   cv::Mat frame;
@@ -48,13 +49,23 @@ void setBallSettings(httpMessage message, void* data);
 void serveBgSettings(httpMessage message, void* data);
 void setBgSettings(httpMessage message, void* data);
 
+bool loadSettings(struct glob* g);
+void saveSettings(httpMessage message, void* data);
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, char** argv) {
+  // important variables
   struct glob g;
-  g.imageScaling = 0.25;
-  g.ball = { 179, 255, 255, 0, 0, 0, 0, 0 };
-  g.bg   = { 179, 255, 255, 0, 0, 0, 0, 0 };
+  g.imageScaling = 0.25; // image quality
+  g.settingsFile = "settings.yaml"; // mask settings
+
+  if (!loadSettings(&g)) {
+    std::cerr << "FATAL: could not load settings file '" << g.settingsFile << "'; aborting!" << std::endl;
+    return 2;
+  }
+
+  // open camera
   g.camera = cv::VideoCapture(1);
   if (!g.camera.isOpened()) {
     std::cerr << "FATAL: could not open camera!" << std::endl;
@@ -75,6 +86,8 @@ int main(int argc, char** argv) {
 
   server.addGetCallback("bgSettings", &serveBgSettings);
   server.addPostCallback("setBgSettings", &setBgSettings);
+
+  server.addPostCallback("saveSettings", &saveSettings);
   
   server.launch();
 
@@ -316,5 +329,76 @@ void setBgSettings(httpMessage message, void* data) {
 
   message.replyHttpOk();
 }  
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bool loadSettings(struct glob* g) {
+  cv::FileStorage fs;
+  fs.open(g->settingsFile, cv::FileStorage::READ);
+
+  if (!fs.isOpened()) {
+    return false;
+  }
+
+  cv::FileNode node = fs["ballSettings"];
+  node["hueMax"]    >> g->ball.hueMax;    
+  node["satMax"]    >> g->ball.satMax;   
+  node["valMax"]    >> g->ball.valMax;   
+  node["hueMin"]    >> g->ball.hueMin;   
+  node["satMin"]    >> g->ball.satMin;   
+  node["valMin"]    >> g->ball.valMin;   
+  node["erosions"]  >> g->ball.erosions; 
+  node["dilations"] >> g->ball.dilations;
+
+  node = fs["bgSettings"];
+  node["hueMax"]    >> g->bg.hueMax;    
+  node["satMax"]    >> g->bg.satMax;   
+  node["valMax"]    >> g->bg.valMax;   
+  node["hueMin"]    >> g->bg.hueMin;   
+  node["satMin"]    >> g->bg.satMin;   
+  node["valMin"]    >> g->bg.valMin;   
+  node["erosions"]  >> g->bg.erosions; 
+  node["dilations"] >> g->bg.dilations;
+
+  return true;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void saveSettings(httpMessage message, void* data) {
+  struct glob* g = (struct glob*) data;
+  
+  cv::FileStorage fs;
+  fs.open(g->settingsFile, cv::FileStorage::WRITE);
+
+  if (!fs.isOpened()) {
+    message.replyHttpError(500, "Could not open settings file!");
+    return;
+  }
+
+  fs << "ballSettings" << "{";
+  fs << "hueMax"    << g->ball.hueMax;  
+  fs << "satMax"    << g->ball.satMax;  
+  fs << "valMax"    << g->ball.valMax;  
+  fs << "hueMin"    << g->ball.hueMin;  
+  fs << "satMin"    << g->ball.satMin;  
+  fs << "valMin"    << g->ball.valMin;  
+  fs << "erosions"  << g->ball.erosions;
+  fs << "dilations" << g->ball.dilations;
+  fs << "}";
+
+  fs << "bgSettings" << "{";
+  fs << "hueMax"    << g->bg.hueMax;  
+  fs << "satMax"    << g->bg.satMax;  
+  fs << "valMax"    << g->bg.valMax;  
+  fs << "hueMin"    << g->bg.hueMin;  
+  fs << "satMin"    << g->bg.satMin;  
+  fs << "valMin"    << g->bg.valMin;  
+  fs << "erosions"  << g->bg.erosions;
+  fs << "dilations" << g->bg.dilations;
+  fs << "}";
+
+  std::cout << "saved." << std::endl;
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

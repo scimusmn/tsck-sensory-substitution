@@ -5,6 +5,13 @@ let bgSettings   = {};
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+function save() {
+  data = { callback: 'saveSettings' };
+  $.post('/post',data);
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 function updateBallSettings() {
   let [ hueMin, hueMax ] = $('#ballHueRange').val().split(';');
   let [ satMin, satMax ] = $('#ballSatRange').val().split(',');

@@ -87,10 +87,14 @@ $(document).ready(function() {
   $('#ballHueRange').on('change',updateBallSettings);
   $('#ballSatRange').on('change',updateBallSettings);
   $('#ballValRange').on('change',updateBallSettings);
+  $('#ballErosions').siblings('button').on('click',updateBallSettings);
+  $('#ballDilations').siblings('button').on('click',updateBallSettings);  
 
   $('#bgHueRange').on('change',updateBgSettings);
   $('#bgSatRange').on('change',updateBgSettings);
   $('#bgValRange').on('change',updateBgSettings);
+  $('#bgErosions').siblings('button').on('click',updateBgSettings);
+  $('#bgDilations').siblings('button').on('click',updateBgSettings);  
   
 
   window.setInterval( function() {

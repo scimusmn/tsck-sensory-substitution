@@ -132,7 +132,8 @@ void smmServer::handleEvent(struct mg_connection* connection,
       // this is a GET callback request
       else if ( strstr(message->uri.p, "/get/") == message->uri.p ) {
         char callbackKey[256];
-        strncpy(callbackKey, message->uri.p + 5, message->uri.len - 5);
+        int keyLen = message->uri.len - 5;
+        strncpy(callbackKey, message->uri.p + 5, keyLen);
         callback_t callback = server->retrieveGetCallback(callbackKey);
         if (callback != NULL) {
           callback(httpMessage(connection, message, server->httpServerOptions), server->userData);

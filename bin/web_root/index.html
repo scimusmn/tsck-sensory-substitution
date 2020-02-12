@@ -14,31 +14,7 @@
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/jquery.lcnCircleRangeSelect.min.js"></script>
     <script src="js/jquery.range-min.js"></script>
-    <script>
-      $(document).ready(function() {
-        $('input.circle-range-select').lcnCircleRangeSelect();
-        $('input.jquery-range').jRange({
-          from: 0,
-          to: 255,
-          step: 1,
-          isRange: true,
-          theme: 'theme-config',
-        }).jRange('setValue','0,255');
-
-        window.setInterval( function() {
-          $.get('/get/cameraImage',function(data, status) {
-            $('#cameraImage').attr('src',`data:image/jpeg;base64,${data}`);
-          });
-          $.get('/get/ballMask',function(data, status) {
-            $('#ballMaskImage').attr('src',`data:image/jpeg;base64,${data}`);
-          });
-          $.get('/get/bgMask',function(data, status) {
-            $('#bgMaskImage').attr('src',`data:image/jpeg;base64,${data}`);
-          });
-        }, 100);
-      });
-    </script>
-    
+    <script src="js/main.js"></script>
     <title>Sensory Substitution Configuration</title>
   </head>
   

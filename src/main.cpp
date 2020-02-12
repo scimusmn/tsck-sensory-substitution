@@ -16,13 +16,13 @@ extern "C" {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 struct thresholdSettings {
-  unsigned int hueMax;
-  unsigned int satMax;
-  unsigned int valMax;
-  unsigned int hueMin;
-  unsigned int satMin;
-  unsigned int valMin;  
-  unsigned int erosions;
+  unsigned int hueMax;   
+  unsigned int satMax;   
+  unsigned int valMax;   
+  unsigned int hueMin;   
+  unsigned int satMin;   
+  unsigned int valMin;   
+  unsigned int erosions; 
   unsigned int dilations;
 };
 
@@ -42,13 +42,19 @@ cv::Mat getMask(cv::Mat& frame, struct thresholdSettings s);
 void serveBallMask(httpMessage message, void* data);
 void serveBgMask(httpMessage message, void* data);
 
+void serveBallSettings(httpMessage message, void* data);
+void setBallSettings(httpMessage message, void* data);
+
+void serveBgSettings(httpMessage message, void* data);
+void setBgSettings(httpMessage message, void* data);
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, char** argv) {
   struct glob g;
-  g.imageScaling = 0.4;
-  g.ball = { 179, 255, 255, 30, 0, 0, 0, 0 };
-  g.bg   = { 30, 255, 255, 0, 0, 0, 0, 0 };
+  g.imageScaling = 0.25;
+  g.ball = { 179, 255, 255, 0, 0, 0, 0, 0 };
+  g.bg   = { 179, 255, 255, 0, 0, 0, 0, 0 };
   g.camera = cv::VideoCapture(1);
   if (!g.camera.isOpened()) {
     std::cerr << "FATAL: could not open camera!" << std::endl;
@@ -59,11 +65,21 @@ int main(int argc, char** argv) {
   std::string rootPath = "./web_root";
 
   smmServer server(httpPort, rootPath, &g);
+  
   server.addGetCallback("cameraImage",  &serveCameraImage );
   server.addGetCallback("ballMask", &serveBallMask);
   server.addGetCallback("bgMask", &serveBgMask);
+
+  server.addGetCallback("ballSettings", &serveBallSettings);
+  server.addPostCallback("setBallSettings", &setBallSettings);
+
+  server.addGetCallback("bgSettings", &serveBgSettings);
+  server.addPostCallback("setBgSettings", &setBgSettings);
+  
   server.launch();
 
+  std::cout << "Server started on port " << httpPort << std::endl;
+  
   while(server.isRunning()) {}
 
   return 0;
@@ -109,9 +125,16 @@ cv::Mat getMask(cv::Mat& frame, struct thresholdSettings s) {
   // build mask
   cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
   cv::split(hsv,chan);
-  cv::threshold(chan[0],mask,s.hueMax, 255, cv::THRESH_BINARY_INV);
-  cv::threshold(chan[0],mask_tmp,s.hueMin-1, 255, cv::THRESH_BINARY);
-  cv::bitwise_and(mask_tmp,mask,mask);
+  if (s.hueMin < s.hueMax) {
+    cv::threshold(chan[0],mask,s.hueMax, 255, cv::THRESH_BINARY_INV);
+    cv::threshold(chan[0],mask_tmp,s.hueMin-1, 255, cv::THRESH_BINARY);
+    cv::bitwise_and(mask_tmp,mask,mask);
+  }
+  else {
+    cv::threshold(chan[0],mask,s.hueMin-1, 255, cv::THRESH_BINARY);
+    cv::threshold(chan[0],mask_tmp,s.hueMax, 255, cv::THRESH_BINARY_INV);
+    cv::bitwise_or(mask_tmp,mask,mask);
+  }
 
   cv::threshold(chan[1],mask_tmp,s.satMax, 255, cv::THRESH_BINARY_INV);
   cv::bitwise_and(mask_tmp,mask,mask);
@@ -136,12 +159,21 @@ void serveBallMask(httpMessage message, void* data) {
   struct glob* g = (struct glob*) data;
 
   cv::Mat mask;
+  bool ok = false;
   
   g->access.lock();
-  mask = getMask(g->frame, g->ball);
+  if (!g->frame.empty()) {
+    mask = getMask(g->frame, g->ball);
+    ok = true;
+  }
   g->access.unlock();
-  
-  sendMat(mask, message);
+
+  if (ok) {
+    sendMat(mask, message);
+  }
+  else {
+    message.replyHttpError(503, "Frame not yet loaded");
+  }
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,12 +182,125 @@ void serveBgMask(httpMessage message, void* data) {
   struct glob* g = (struct glob*) data;
 
   cv::Mat mask;
+  bool ok = false;
   
   g->access.lock();
-  mask = getMask(g->frame, g->bg);
+  if (!g->frame.empty()) {
+    mask = getMask(g->frame, g->bg);
+    ok = true;
+  }
   g->access.unlock();
 
-  sendMat(mask, message);
+  if (ok) {
+    sendMat(mask, message);
+  }
+  else {
+    message.replyHttpError(503, "Frame not yet loaded");
+  }
 }
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void serveBallSettings(httpMessage message, void* data) {
+  struct glob* g = (struct glob*) data;
+
+  g->access.lock();
+  
+  std::string buffer = "{";
+  buffer += "\"hueMax\":";
+  buffer += std::to_string(g->ball.hueMax);
+  buffer += ",\"hueMin\":";   
+  buffer += std::to_string(g->ball.hueMin);
+  buffer += ",\"satMax\":";   
+  buffer += std::to_string(g->ball.satMax);
+  buffer += ",\"satMin\":";   
+  buffer += std::to_string(g->ball.satMin);
+  buffer += ",\"valMax\":";   
+  buffer += std::to_string(g->ball.valMax);
+  buffer += ",\"valMin\":";   
+  buffer += std::to_string(g->ball.valMin);
+  buffer += ",\"erosions\":";
+  buffer += std::to_string(g->ball.erosions);
+  buffer += ",\"dilations\":";
+  buffer += std::to_string(g->ball.dilations);
+  buffer += "}";
+  
+  message.replyHttpContent("text/plain", buffer);
+  g->access.unlock();
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+void setBallSettings(httpMessage message, void* data) {
+  struct glob* g = (struct glob*) data;
+
+  struct thresholdSettings settings;
+  settings.hueMax    = std::stoi(message.getHttpVariable("hueMax"));
+  settings.satMax    = std::stoi(message.getHttpVariable("satMax"));
+  settings.valMax    = std::stoi(message.getHttpVariable("valMax"));
+  settings.hueMin    = std::stoi(message.getHttpVariable("hueMin"));   
+  settings.satMin    = std::stoi(message.getHttpVariable("satMin"));   
+  settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
+  settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
+  settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+  
+  g->access.lock();
+  g->ball = settings;
+  g->access.unlock();
+
+  message.replyHttpOk();
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void serveBgSettings(httpMessage message, void* data) {
+  struct glob* g = (struct glob*) data;
+
+  g->access.lock();
+  
+  std::string buffer = "{";
+  buffer += "\"hueMax\":";
+  buffer += std::to_string(g->bg.hueMax);
+  buffer += ",\"hueMin\":";   
+  buffer += std::to_string(g->bg.hueMin);
+  buffer += ",\"satMax\":";   
+  buffer += std::to_string(g->bg.satMax);
+  buffer += ",\"satMin\":";   
+  buffer += std::to_string(g->bg.satMin);
+  buffer += ",\"valMax\":";   
+  buffer += std::to_string(g->bg.valMax);
+  buffer += ",\"valMin\":";   
+  buffer += std::to_string(g->bg.valMin);
+  buffer += ",\"erosions\":";
+  buffer += std::to_string(g->bg.erosions);
+  buffer += ",\"dilations\":";
+  buffer += std::to_string(g->bg.dilations);
+  buffer += "}";
+  
+  message.replyHttpContent("text/plain", buffer);
+  g->access.unlock();
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void setBgSettings(httpMessage message, void* data) {
+  struct glob* g = (struct glob*) data;
+
+  struct thresholdSettings settings;
+  settings.hueMax    = std::stoi(message.getHttpVariable("hueMax"));
+  settings.satMax    = std::stoi(message.getHttpVariable("satMax"));
+  settings.valMax    = std::stoi(message.getHttpVariable("valMax"));
+  settings.hueMin    = std::stoi(message.getHttpVariable("hueMin"));   
+  settings.satMin    = std::stoi(message.getHttpVariable("satMin"));   
+  settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
+  settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
+  settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+  
+  g->access.lock();
+  g->bg = settings;
+  g->access.unlock();
+
+  message.replyHttpOk();
+}  
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

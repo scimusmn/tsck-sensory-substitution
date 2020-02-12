@@ -11,6 +11,7 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <mutex>
 
 #include "mg/mongoose.h"
 
@@ -106,6 +107,9 @@ private:
 
   std::unordered_map<std::string, callback_t> postCallbackMap;
   std::unordered_map<std::string, callback_t>  getCallbackMap;
+
+  std::mutex postCallbackMutex;
+  std::mutex  getCallbackMutex;
   
 public:
   /*! @brief The port to serve HTTP content over. */

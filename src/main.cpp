@@ -131,8 +131,8 @@ cv::Mat getMask(cv::Mat& frame, struct thresholdSettings s) {
     cv::bitwise_and(mask_tmp,mask,mask);
   }
   else {
-    cv::threshold(chan[0],mask,s.hueMin-1, 255, cv::THRESH_BINARY);
-    cv::threshold(chan[0],mask_tmp,s.hueMax, 255, cv::THRESH_BINARY_INV);
+    cv::threshold(chan[0],mask,s.hueMax, 255, cv::THRESH_BINARY_INV);
+    cv::threshold(chan[0],mask_tmp,s.hueMin-1, 255, cv::THRESH_BINARY);
     cv::bitwise_or(mask_tmp,mask,mask);
   }
 
@@ -235,14 +235,21 @@ void setBallSettings(httpMessage message, void* data) {
   struct glob* g = (struct glob*) data;
 
   struct thresholdSettings settings;
-  settings.hueMax    = std::stoi(message.getHttpVariable("hueMax"));
-  settings.satMax    = std::stoi(message.getHttpVariable("satMax"));
-  settings.valMax    = std::stoi(message.getHttpVariable("valMax"));
-  settings.hueMin    = std::stoi(message.getHttpVariable("hueMin"));   
-  settings.satMin    = std::stoi(message.getHttpVariable("satMin"));   
-  settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
-  settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
-  settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+  try {
+    settings.hueMax    = std::stoi(message.getHttpVariable("hueMax"));
+    settings.satMax    = std::stoi(message.getHttpVariable("satMax"));
+    settings.valMax    = std::stoi(message.getHttpVariable("valMax"));
+    settings.hueMin    = std::stoi(message.getHttpVariable("hueMin"));   
+    settings.satMin    = std::stoi(message.getHttpVariable("satMin"));   
+    settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
+    settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
+    settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+  }
+  catch(std::invalid_argument error) {
+    std::cerr << "error: invalid argument encountered in setBallSettings()" << std::endl;
+    message.replyHttpError(422,"Invalid number");
+    return;
+  }
   
   g->access.lock();
   g->ball = settings;
@@ -287,14 +294,21 @@ void setBgSettings(httpMessage message, void* data) {
   struct glob* g = (struct glob*) data;
 
   struct thresholdSettings settings;
-  settings.hueMax    = std::stoi(message.getHttpVariable("hueMax"));
-  settings.satMax    = std::stoi(message.getHttpVariable("satMax"));
-  settings.valMax    = std::stoi(message.getHttpVariable("valMax"));
-  settings.hueMin    = std::stoi(message.getHttpVariable("hueMin"));   
-  settings.satMin    = std::stoi(message.getHttpVariable("satMin"));   
-  settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
-  settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
-  settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+  try {
+    settings.hueMax    = std::stoi(message.getHttpVariable("hueMax"));
+    settings.satMax    = std::stoi(message.getHttpVariable("satMax"));
+    settings.valMax    = std::stoi(message.getHttpVariable("valMax"));
+    settings.hueMin    = std::stoi(message.getHttpVariable("hueMin"));   
+    settings.satMin    = std::stoi(message.getHttpVariable("satMin"));   
+    settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
+    settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
+    settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+  }
+  catch (std::invalid_argument error) {
+    std::cerr << "error: invalid argument encountered in setBgSettings()" << std::endl;
+    message.replyHttpError(422,"Invalid number");
+    return;
+  }
   
   g->access.lock();
   g->bg = settings;

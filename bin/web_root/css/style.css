@@ -12,6 +12,12 @@ body {
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+button {
+    background-color: var(--primary);
+    color: var(--light);
+    border: 0px;
+}
+
 .noscript {
     position: fixed;
     font-size: 2em;

@@ -137,8 +137,8 @@ public:
    * @param path The path to the root directory of the web server.
    * @param userData A pointer to user-constructed data. This is passed to all callbacks.
    */
-  smmServer(std::string port,
-            std::string path,
+  smmServer(const char* port,
+            const char* path,
             void* userData);
 
   /*! @brief smmServer destructor.

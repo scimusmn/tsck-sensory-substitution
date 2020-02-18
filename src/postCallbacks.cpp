@@ -15,6 +15,7 @@ void setBallSettings(httpMessage message, void* data) {
     settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
     settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
     settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+    settings.gridPercentage = std::stoi(message.getHttpVariable("gridPercentage"));
   }
   catch(std::invalid_argument error) {
     std::cerr << "error: invalid argument encountered in setBallSettings()" << std::endl;
@@ -45,6 +46,7 @@ void setBgSettings(httpMessage message, void* data) {
     settings.valMin    = std::stoi(message.getHttpVariable("valMin"));   
     settings.erosions  = std::stoi(message.getHttpVariable("erosions"));   
     settings.dilations = std::stoi(message.getHttpVariable("dilations"));
+    settings.gridPercentage = std::stoi(message.getHttpVariable("gridPercentage"));
   }
   catch (std::invalid_argument error) {
     std::cerr << "error: invalid argument encountered in setBgSettings()" << std::endl;
@@ -74,6 +76,10 @@ void saveSettings(httpMessage message, void* data) {
 
   g->settingsMutex.lock();
 
+  fs << "imageScaling" << g->imageScaling;
+  fs << "gridWidth"   << g->gridWidth;
+  fs << "gridHeight"  << g->gridHeight;
+
   fs << "ballSettings" << "{";
   fs << "hueMax"    << g->ball.hueMax;  
   fs << "satMax"    << g->ball.satMax;  
@@ -83,6 +89,7 @@ void saveSettings(httpMessage message, void* data) {
   fs << "valMin"    << g->ball.valMin;  
   fs << "erosions"  << g->ball.erosions;
   fs << "dilations" << g->ball.dilations;
+  fs << "gridPercentage" << g->ball.gridPercentage;
   fs << "}";
 
   fs << "bgSettings" << "{";
@@ -94,6 +101,7 @@ void saveSettings(httpMessage message, void* data) {
   fs << "valMin"    << g->bg.valMin;  
   fs << "erosions"  << g->bg.erosions;
   fs << "dilations" << g->bg.dilations;
+  fs << "gridPercentage" << g->bg.gridPercentage;
   fs << "}";
 
   g->settingsMutex.unlock();

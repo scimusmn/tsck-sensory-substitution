@@ -1,20 +1,25 @@
 %YAML:1.0
 ---
+imageScaling: 2.0000000000000001e-01
+motorWidth: 0
+motorHeight: 0
 ballSettings:
-   hueMax: 117
+   hueMax: 114
    satMax: 255
    valMax: 255
-   hueMin: 111
-   satMin: 113
+   hueMin: 107
+   satMin: 184
    valMin: 0
-   erosions: 2
-   dilations: 4
+   erosions: 0
+   dilations: 6
+   gridPercentage: 8979952
 bgSettings:
    hueMax: 179
-   satMax: 255
+   satMax: 45
    valMax: 255
    hueMin: 0
    satMin: 0
    valMin: 0
    erosions: 0
    dilations: 0
+   gridPercentage: 2129457947

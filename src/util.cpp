@@ -72,6 +72,10 @@ bool loadSettings(struct glob* g) {
   }
 
   g->settingsMutex.lock();
+
+  fs["imageScaling"] >> g->imageScaling;
+  fs["motorWidth"]   >> g->motorWidth;
+  fs["motorHeight"]  >> g->motorHeight;
   
   cv::FileNode node = fs["ballSettings"];
   node["hueMax"]    >> g->ball.hueMax;    
@@ -96,6 +100,28 @@ bool loadSettings(struct glob* g) {
   g->settingsMutex.unlock();
   
   return true;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void setupGrid(struct glob* g) {
+  int nGridSquares = g->gridWidth * g->gridHeight;
+
+  g->cameraMutex.lock();
+  g->frameMutex.lock();
+  g->camera >> g->frame;
+  int squareWidth = g->frame.cols/g->gridWidth;
+  int squareHeight = g->frame.rows/g->gridHeight;
+  g->frameMutex.unlock();
+  g->cameraMutex.unlock();
+
+  g->gridMutex.lock();
+  for (int x=0; x<g->gridWidth; x++) {
+    for (int y=0; y<g->gridHeight; y++) {
+      g->gridSquares.push_back(cv::Rect(x*squareWidth, y*squareHeight, squareWidth, squareHeight));
+    }
+  }
+  g->gridMutex.unlock();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

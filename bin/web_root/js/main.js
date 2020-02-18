@@ -29,6 +29,7 @@ function updateBallSettings() {
     valMax,
     erosions,
     dilations,
+    gridPercentage: 20,
   };
   $.post('/post', data);
 }
@@ -52,6 +53,7 @@ function updateBgSettings() {
     valMax,
     erosions,
     dilations,
+    gridPercentage: 20,
   };
   $.post('/post', data);
 }

@@ -12,7 +12,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, char** argv) {
-  
+
   // important variables
   struct glob g;
   g.settingsFile = "settings.yaml"; // mask settings
@@ -21,13 +21,15 @@ int main(int argc, char** argv) {
     std::cerr << "FATAL: could not load settings file '" << g.settingsFile << "'; aborting!" << std::endl;
     return 2;
   }
+  std::cout << "loaded settings." << std::endl;
 
   // open camera
-  g.camera = cv::VideoCapture(1);
+  g.camera = cv::VideoCapture(0);
   if (!g.camera.isOpened()) {
     std::cerr << "FATAL: could not open camera!" << std::endl;
     return 1;
   }
+  std::cout << "opened camera." << std::endl;
 
   smmServer server("8000", "./web_root", &g);
 
@@ -44,6 +46,8 @@ int main(int argc, char** argv) {
   server.addPostCallback("setBallSettings", &setBallSettings);
   server.addPostCallback("setBgSettings", &setBgSettings);
   server.addPostCallback("saveSettings", &saveSettings);
+
+  std::cout << "loaded callbacks." << std::endl;
 
   // begin server
   server.launch();

@@ -1,6 +1,7 @@
 #ifndef SENSORY_SUBSTITUTION_CALLBACKS_HPP
 #define SENSORY_SUBSTITUTION_CALLBACKS_HPP
 
+#include <vector>
 #include <mutex>
 #include <string>
 #include <opencv2/core.hpp>
@@ -19,6 +20,7 @@ struct thresholdSettings {
   int valMin;   
   int erosions; 
   int dilations;
+  int gridPercentage;
 };
 
 struct glob {
@@ -29,10 +31,17 @@ struct glob {
   cv::Mat frame;
   cv::Mat ballMask;
   cv::Mat bgMask;
+
+  // output vectors
+  std::vector<cv::Rect> gridSquares;
+  std::vector<bool> ballGrid;
+  std::vector<bool> handGrid;
   
   // settings
   std::string settingsFile;
-  const double imageScaling = 0.2;
+  double imageScaling;
+  int gridWidth;
+  int gridHeight;
   struct thresholdSettings ball;
   struct thresholdSettings bg;
   
@@ -42,6 +51,7 @@ struct glob {
   std::mutex ballMaskMutex;
   std::mutex bgMaskMutex;
   std::mutex settingsMutex;
+  std::mutex gridMutex;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

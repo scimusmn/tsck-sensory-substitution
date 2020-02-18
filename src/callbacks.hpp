@@ -20,7 +20,6 @@ struct thresholdSettings {
   int valMin;   
   int erosions; 
   int dilations;
-  int gridPercentage;
 };
 
 struct glob {
@@ -34,8 +33,6 @@ struct glob {
 
   // output vectors
   std::vector<cv::Rect> gridSquares;
-  std::vector<bool> ballGrid;
-  std::vector<bool> handGrid;
   
   // settings
   std::string settingsFile;

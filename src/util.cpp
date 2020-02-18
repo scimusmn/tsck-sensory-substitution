@@ -74,8 +74,8 @@ bool loadSettings(struct glob* g) {
   g->settingsMutex.lock();
 
   fs["imageScaling"] >> g->imageScaling;
-  fs["motorWidth"]   >> g->motorWidth;
-  fs["motorHeight"]  >> g->motorHeight;
+  fs["gridWidth"]   >> g->gridWidth;
+  fs["gridHeight"]  >> g->gridHeight;
   
   cv::FileNode node = fs["ballSettings"];
   node["hueMax"]    >> g->ball.hueMax;    
@@ -107,6 +107,7 @@ bool loadSettings(struct glob* g) {
 void setupGrid(struct glob* g) {
   int nGridSquares = g->gridWidth * g->gridHeight;
 
+  g->settingsMutex.lock();
   g->cameraMutex.lock();
   g->frameMutex.lock();
   g->camera >> g->frame;
@@ -114,6 +115,7 @@ void setupGrid(struct glob* g) {
   int squareHeight = g->frame.rows/g->gridHeight;
   g->frameMutex.unlock();
   g->cameraMutex.unlock();
+  g->settingsMutex.unlock();
 
   g->gridMutex.lock();
   for (int x=0; x<g->gridWidth; x++) {
@@ -122,6 +124,33 @@ void setupGrid(struct glob* g) {
     }
   }
   g->gridMutex.unlock();
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void updateGrid(struct glob* g) {
+  cv::Mat handMask;
+
+  g->ballMaskMutex.lock();
+  g->bgMaskMutex.lock();
+
+  handMask = cv::Mat::zeros(g->ballMask.rows, g->ballMask.cols, g->ballMask.type());
+  cv::bitwise_or(g->ballMask, g->bgMask, handMask);
+  cv::bitwise_not(handMask, handMask);
+
+  g->bgMaskMutex.unlock();
+
+  std::cout << "----------------" << std::endl;
+
+  g->gridMutex.lock();
+  for (int i=0; i<g->gridSquares.size(); i++) {
+    double handRatio = double(cv::countNonZero(handMask(g->gridSquares[i]))) / g->gridSquares[i].area();
+    double ballRatio = double(cv::countNonZero(g->ballMask(g->gridSquares[i]))) / g->gridSquares[i].area();
+
+    std::cout << "(" << handRatio << ", " << ballRatio << ")" << std::endl;
+  }
+  g->gridMutex.unlock();
+  g->ballMaskMutex.unlock();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

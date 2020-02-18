@@ -31,6 +31,8 @@ int main(int argc, char** argv) {
   }
   std::cout << "opened camera." << std::endl;
 
+  setupGrid(&g);
+
   smmServer server("8000", "./web_root", &g);
 
   // image GET callbacks
@@ -68,6 +70,8 @@ int main(int argc, char** argv) {
     g.bgMaskMutex.unlock();
     g.settingsMutex.unlock();
     g.frameMutex.unlock();
+
+    updateGrid(&g);
 
     cv::waitKey(10);
   }

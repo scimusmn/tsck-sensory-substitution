@@ -31,7 +31,10 @@ int main(int argc, char** argv) {
   }
   std::cout << "opened camera." << std::endl;
 
-  setupGrid(&g);
+  if (setupGrid(&g) != 0) {
+    std::cerr << "FATAL: could not configure PCA9685; aborting!" << std::endl;
+    return 3;
+  }
 
   smmServer server("8000", "./web_root", &g);
 

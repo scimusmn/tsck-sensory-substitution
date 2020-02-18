@@ -37,7 +37,7 @@ cv::Mat getMask(cv::Mat& frame, struct thresholdSettings s);
  */
 bool loadSettings(struct glob* g);
 
-void setupGrid(struct glob* g);
+int setupGrid(struct glob* g);
 void updateGrid(struct glob* g);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

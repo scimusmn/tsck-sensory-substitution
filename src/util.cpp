@@ -1,12 +1,21 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <vector>
+#include <cmath>
 
 extern "C" {
+  #include <wiringPi.h>
+  #include <wiringPiI2C.h>
+  #include "pca9685/pca9685.h"
   #include "b64/base64.h"
 }
 
 #include "util.hpp"
+
+// PCA9685 constants
+static const int PIN_BASE=300;
+static const int MAX_PWM=4096;
+static const int HERTZ=50;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -104,7 +113,16 @@ bool loadSettings(struct glob* g) {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-void setupGrid(struct glob* g) {
+int setupGrid(struct glob* g) {
+  wiringPiSetup();
+  int setupResult = pca9685Setup(PIN_BASE, 0x40, HERTZ);
+  if (setupResult < 0) {
+    std::cerr << "ERROR: pca9685 setup returned " << setupResult << std::endl;
+    return 1;
+  }
+
+  pca9685PWMReset(setupResult);
+  
   int nGridSquares = g->gridWidth * g->gridHeight;
 
   g->settingsMutex.lock();
@@ -124,6 +142,8 @@ void setupGrid(struct glob* g) {
     }
   }
   g->gridMutex.unlock();
+
+  return 0;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,14 +160,22 @@ void updateGrid(struct glob* g) {
 
   g->bgMaskMutex.unlock();
 
-  std::cout << "----------------" << std::endl;
-
   g->gridMutex.lock();
   for (int i=0; i<g->gridSquares.size(); i++) {
     double handRatio = double(cv::countNonZero(handMask(g->gridSquares[i]))) / g->gridSquares[i].area();
     double ballRatio = double(cv::countNonZero(g->ballMask(g->gridSquares[i]))) / g->gridSquares[i].area();
 
-    std::cout << "(" << handRatio << ", " << ballRatio << ")" << std::endl;
+    double total = handRatio + ballRatio;
+    int pwmLevel;
+
+    if (total > 0.05) {
+      pwmLevel = int( MAX_PWM * pow(total, 0.25) );
+    }
+    else {
+      pwmLevel = 0;
+    }
+    
+    pwmWrite(PIN_BASE + i, pwmLevel);
   }
   g->gridMutex.unlock();
   g->ballMaskMutex.unlock();

@@ -129,6 +129,7 @@ int setupGrid(struct glob* g) {
   g->cameraMutex.lock();
   g->frameMutex.lock();
   g->camera >> g->frame;
+  cv::resize(g->frame, g->frame, cv::Size(), g->imageScaling, g->imageScaling);
   int squareWidth = g->frame.cols/g->gridWidth;
   int squareHeight = g->frame.rows/g->gridHeight;
   g->frameMutex.unlock();
@@ -136,8 +137,8 @@ int setupGrid(struct glob* g) {
   g->settingsMutex.unlock();
 
   g->gridMutex.lock();
-  for (int x=0; x<g->gridWidth; x++) {
-    for (int y=0; y<g->gridHeight; y++) {
+  for (int y=g->gridHeight-1; y>=0; y--) {
+    for (int x=0; x<g->gridWidth; x++) {
       g->gridSquares.push_back(cv::Rect(x*squareWidth, y*squareHeight, squareWidth, squareHeight));
     }
   }
@@ -166,15 +167,14 @@ void updateGrid(struct glob* g) {
     double ballRatio = double(cv::countNonZero(g->ballMask(g->gridSquares[i]))) / g->gridSquares[i].area();
 
     double total = handRatio + ballRatio;
-    int pwmLevel;
+    if (total > 0) {
+      total = total + 0.8;
+    }
+    if (total > 1) {
+      total = 1;
+    }
+    int pwmLevel = int ( MAX_PWM * total );
 
-    if (total > 0.05) {
-      pwmLevel = int( MAX_PWM * pow(total, 0.25) );
-    }
-    else {
-      pwmLevel = 0;
-    }
-    
     pwmWrite(PIN_BASE + i, pwmLevel);
   }
   g->gridMutex.unlock();

@@ -63,6 +63,14 @@ int main(int argc, char** argv) {
     g.frameMutex.lock();
     g.camera >> g.frame;
 
+    cv::resize(g.frame, g.frame, cv::Size(), g.imageScaling, g.imageScaling);
+
+    /*g.gridMutex.lock();
+    for (auto square = g.gridSquares.begin(); square != g.gridSquares.end(); square++) {
+      cv::rectangle(g.frame, *square, cv::Scalar(255,0,0));
+    }
+    g.gridMutex.unlock();*/
+    
     g.settingsMutex.lock();
     g.ballMaskMutex.lock();
     g.ballMask = getMask(g.frame, g.ball);

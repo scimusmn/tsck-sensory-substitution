@@ -9,18 +9,15 @@ void serveCameraImage(httpMessage message,
                       void* data) {
   struct glob* g = (struct glob*) data;
 
-  cv::Mat resizedFrame;
-  
   g->frameMutex.lock();
   if (g->frame.empty()) {
     message.replyHttpError(503, "Frame not ready");
     g->frameMutex.unlock();
     return;
   }
-  cv::resize(g->frame, resizedFrame, cv::Size(), g->imageScaling, g->imageScaling);
-  g->frameMutex.unlock();
   
-  sendMat(resizedFrame, message);
+  sendMat(g->frame, message);
+  g->frameMutex.unlock();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,37 +25,32 @@ void serveCameraImage(httpMessage message,
 void serveBallMask(httpMessage message, void* data) {
   struct glob* g = (struct glob*) data;
 
-  cv::Mat resizedBallMask;
-  
   g->ballMaskMutex.lock();
   if (g->ballMask.empty()) {
-    message.replyHttpError(503, "Ball mask not ready");
+    message.replyHttpError(503, "BallMask not ready");
     g->ballMaskMutex.unlock();
     return;
   }
-  cv::resize(g->ballMask, resizedBallMask, cv::Size(), g->imageScaling, g->imageScaling);
-  g->ballMaskMutex.unlock();
   
-  sendMat(resizedBallMask, message);
+  sendMat(g->ballMask, message);
+  g->ballMaskMutex.unlock();
 }
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void serveBgMask(httpMessage message, void* data) {
   struct glob* g = (struct glob*) data;
 
-  cv::Mat resizedBgMask;
-  
   g->bgMaskMutex.lock();
   if (g->bgMask.empty()) {
-    message.replyHttpError(503, "Background mask not ready");
+    message.replyHttpError(503, "BgMask not ready");
     g->bgMaskMutex.unlock();
     return;
   }
-  cv::resize(g->bgMask, resizedBgMask, cv::Size(), g->imageScaling, g->imageScaling);
-  g->bgMaskMutex.unlock();
   
-  sendMat(resizedBgMask, message);
+  sendMat(g->bgMask, message);
+  g->bgMaskMutex.unlock();
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

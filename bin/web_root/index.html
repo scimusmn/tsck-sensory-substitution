@@ -43,14 +43,14 @@
     <div class="pure-g bg-light">
 
       <div class="pure-u-1 pure-u-xl-1-2">
-        <h3 class="m-1">Ball Color Thresholding</h3>
+        <h3 class="m-1">Color Thresholding</h3>
         <div class="pure-g border-primary mx-1 p-1">
           <div class="pure-u-1 pure-u-md-1-2">
             <div style="text-align: center">
               <div style="text-align: left; display: inline-block">
                 <h4>Hue</h4>
                 <input class="circle-range-select"
-                       id="ballHueRange"
+                       id="hueRange"
                        type="text"
                        value="0;179"
                        data-min="0"
@@ -63,53 +63,16 @@
             <div class="m-1" style="text-align: center">
               <div style="text-align: left; display: inline-block">
                 <h4>Saturation</h4>
-                <input id="ballSatRange" class="jquery-range" hidden>
+                <input id="satRange" class="jquery-range" hidden>
                 <br>
                 <h4>Value</h4>
-                <input id="ballValRange" class="jquery-range" hidden>
+                <input id="valRange" class="jquery-range" hidden>
                 <br>
                 <h4>Erosions & Dilations</h4>
                 <label>Erosions</label>
-                <input id="ballErosions" class="nice-number" type="number" min="0" value="0" max="10">
+                <input id="erosions" class="nice-number" type="number" min="0" value="0" max="10">
                 <label>Dilations</label>
-                <input id="ballDilations" class="nice-number" type="number" min="0" value="0" max="10">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pure-u-1 pure-u-xl-1-2">
-        <h3 class="m-1">Background Color Thresholding</h3>
-        <div class="pure-g border-primary mx-1 p-1">
-          <div class="pure-u-1 pure-u-md-1-2">
-            <div style="text-align: center">
-              <div style="text-align: left; display: inline-block">
-                <h4>Hue</h4>
-                <input class="circle-range-select"
-                       id="bgHueRange"
-                       type="text"
-                       value="0;179"
-                       data-min="0"
-                       data-max="179"
-                       data-unit="">
-              </div>
-            </div>
-          </div>
-          <div class="pure-u-1 pure-u-md-1-2">
-            <div class="m-1" style="text-align: center">
-              <div style="text-align: left; display: inline-block">
-                <h4>Saturation</h4>
-                <input id="bgSatRange" class="jquery-range" hidden>
-                <br>
-                <h4>Value</h4>
-                <input id="bgValRange" class="jquery-range" hidden>
-                <br>
-                <h4>Erosions & Dilations</h4>
-                <label>Erosions</label>
-                <input id="bgErosions" class="nice-number" type="number" min="0" value="0" max="10">
-                <label>Dilations</label>
-                <input id="bgDilations" class="nice-number" type="number" min="0" value="0" max="10">
+                <input id="dilations" class="nice-number" type="number" min="0" value="0" max="10">
               </div>
             </div>
           </div>

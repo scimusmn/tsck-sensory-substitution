@@ -1,49 +1,25 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-let ballSettings = {};
-let bgSettings   = {};
+let settings   = {};
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function save() {
-  data = { callback: 'saveSettings' };
+  data = { callback: 'save' };
   $.post('/post',data);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function updateBallSettings() {
-  let [ hueMin, hueMax ] = $('#ballHueRange').val().split(';');
-  let [ satMin, satMax ] = $('#ballSatRange').val().split(',');
-  let [ valMin, valMax ] = $('#ballValRange').val().split(',');
-  let erosions = $('#ballErosions').val();
-  let dilations = $('#ballDilations').val();
+function updateSettings() {
+  let [ hueMin, hueMax ] = $('#hueRange').val().split(';');
+  let [ satMin, satMax ] = $('#satRange').val().split(',');
+  let [ valMin, valMax ] = $('#valRange').val().split(',');
+  let erosions = $('#erosions').val();
+  let dilations = $('#dilations').val();
 
   let data = {
-    callback: 'setBallSettings',
-    hueMin,
-    hueMax,
-    satMin,
-    satMax,
-    valMin,
-    valMax,
-    erosions,
-    dilations,
-  };
-  $.post('/post', data);
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function updateBgSettings() {
-  let [ hueMin, hueMax ] = $('#bgHueRange').val().split(';');
-  let [ satMin, satMax ] = $('#bgSatRange').val().split(',');
-  let [ valMin, valMax ] = $('#bgValRange').val().split(',');
-  let erosions = $('#bgErosions').val();
-  let dilations = $('#bgDilations').val();
-
-  let data = {
-    callback: 'setBgSettings',
+    callback: 'settings',
     hueMin,
     hueMax,
     satMin,
@@ -59,25 +35,14 @@ function updateBgSettings() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 $(document).ready(function() {
-  $.get('/get/ballSettings', function(data, status) {
-    if (status === 'success') {
-      ballSettings = JSON.parse(data);
-      $('#ballHueRange').val(`${ballSettings.hueMin};${ballSettings.hueMax}`).trigger('change');
-      $('#ballSatRange').jRange('setValue',`${ballSettings.satMin},${ballSettings.satMax}`);
-      $('#ballValRange').jRange('setValue',`${ballSettings.valMin},${ballSettings.valMax}`);
-      $('#ballErosions').val(ballSettings.erosions);
-      $('#ballDilations').val(ballSettings.dilations);            
-    }
-  });
-
-  $.get('/get/bgSettings', function(data, status) {
+  $.get('/get/settings', function(data, status) {
     if (status === 'success') {
       bgSettings = JSON.parse(data);
-      $('#bgHueRange').val(`${bgSettings.hueMin};${bgSettings.hueMax}`).trigger('change');
-      $('#bgSatRange').jRange('setValue',`${bgSettings.satMin},${bgSettings.satMax}`);
-      $('#bgValRange').jRange('setValue',`${bgSettings.valMin},${bgSettings.valMax}`);
-      $('#bgErosions').val(bgSettings.erosions);
-      $('#bgDilations').val(bgSettings.dilations);
+      $('#hueRange').val(`${bgSettings.hueMin};${bgSettings.hueMax}`).trigger('change');
+      $('#satRange').jRange('setValue',`${bgSettings.satMin},${bgSettings.satMax}`);
+      $('#valRange').jRange('setValue',`${bgSettings.valMin},${bgSettings.valMax}`);
+      $('#erosions').val(bgSettings.erosions);
+      $('#dilations').val(bgSettings.dilations);
     }
   });
 
@@ -91,20 +56,14 @@ $(document).ready(function() {
     theme: 'theme-config',
   });
 
-  $('#ballHueRange').on('change',updateBallSettings);
-  $('#ballSatRange').on('change',updateBallSettings);
-  $('#ballValRange').on('change',updateBallSettings);
-  $('#ballErosions').siblings('button').on('click',updateBallSettings);
-  $('#ballDilations').siblings('button').on('click',updateBallSettings);  
-
-  $('#bgHueRange').on('change',updateBgSettings);
-  $('#bgSatRange').on('change',updateBgSettings);
-  $('#bgValRange').on('change',updateBgSettings);
-  $('#bgErosions').siblings('button').on('click',updateBgSettings);
-  $('#bgDilations').siblings('button').on('click',updateBgSettings);  
+  $('#hueRange').on('change',updateSettings);
+  $('#satRange').on('change',updateSettings);
+  $('#valRange').on('change',updateSettings);
+  $('#erosions').siblings('button').on('click',updateSettings);
+  $('#dilations').siblings('button').on('click',updateSettings);  
   
 
-  window.setInterval( function() {
+    /*window.setInterval( function() {
     $.get('/get/cameraImage',function(data, status) {
       $('#cameraImage').attr('src',`data:image/jpeg;base64,${data}`);
     });
@@ -114,7 +73,7 @@ $(document).ready(function() {
     $.get('/get/bgMask',function(data, status) {
       $('#bgMaskImage').attr('src',`data:image/jpeg;base64,${data}`);
     });
-  }, 100);
+  }, 100);*/
 });
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,20 +1,11 @@
 %YAML:1.0
 ---
-ballSettings:
-   hueMax: 117
-   satMax: 255
-   valMax: 255
-   hueMin: 111
-   satMin: 113
-   valMin: 0
-   erosions: 2
-   dilations: 4
-bgSettings:
-   hueMax: 179
-   satMax: 255
-   valMax: 255
-   hueMin: 0
-   satMin: 0
-   valMin: 0
-   erosions: 0
-   dilations: 0
+ball:
+   hue_minimum: 102
+   saturation_minimum: 105
+   value_minimum: 99
+   hue_maximum: 121
+   saturation_maximum: 255
+   value_maximum: 255
+   erosions: 5
+   dilations: 10

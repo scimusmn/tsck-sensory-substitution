@@ -1,11 +1,11 @@
 %YAML:1.0
 ---
 ball:
-   hue_minimum: 102
-   saturation_minimum: 105
-   value_minimum: 99
-   hue_maximum: 121
+   hue_minimum: 108
+   saturation_minimum: 59
+   value_minimum: 0
+   hue_maximum: 117
    saturation_maximum: 255
    value_maximum: 255
-   erosions: 5
-   dilations: 10
+   erosions: 0
+   dilations: 0

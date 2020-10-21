@@ -123,6 +123,27 @@ bool loadMaps(std::string filename,
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+void increaseContrast(cv::Mat in, cv::Mat& out)
+{
+    double alpha = 2;
+    double beta = 0;
+
+    out = cv::Mat::zeros(in.size(), in.type());
+
+    for (int y=0; y<in.rows; y++) {
+	for (int x=0; x<in.cols; x++) {
+	    int val = alpha*in.at<unsigned char>(y,x) + beta;
+	    if (val<0)
+		val = 0;
+	    if (val>255)
+		val = 255;
+	    out.at<unsigned char>(y,x) = val;
+	}
+    }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 void playCamera(int cameraId, bool undistort,
 		cv::Mat map1, cv::Mat map2)
 {
@@ -136,7 +157,7 @@ void playCamera(int cameraId, bool undistort,
 
     ImagePlayer player(FREQ_MIN, FREQ_MAX, VOLUME, LINES, COLUMN_TIME);
 
-    cv::Mat frame, undist, warped, transform;
+    cv::Mat frame, undist, warped, transform, grey, highContrast;
     std::vector<double> rotationVector = { 0, 0.1, 0 };
 
     double w = 640;
@@ -170,12 +191,15 @@ void playCamera(int cameraId, bool undistort,
 
 	cv::warpPerspective(undist, warped, transform, undist.size());
 
-	cv::imshow("Frame", warped);
+	cv::cvtColor(warped, grey, cv::COLOR_BGR2GRAY);
+	increaseContrast(grey, highContrast);
+
+	cv::imshow("Frame", highContrast);
 	int key = cv::waitKey(10);
 	if (key == 27)
 	    return;
 	else if (key != -1) {
-	    player.play(warped);
+	    player.play(highContrast);
 	}
     }
 }

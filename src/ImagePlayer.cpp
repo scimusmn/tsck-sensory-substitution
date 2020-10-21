@@ -35,7 +35,9 @@ bool ImagePlayer::play(cv::Mat image)
     cv::Size newSize(resizedCols, resizedRows);
     cv::Mat scaledImage;
     cv::resize(image, scaledImage, newSize, 0, 0, cv::INTER_AREA);
-    cv::cvtColor(scaledImage, scaledImage, cv::COLOR_BGR2GRAY);
+    if (scaledImage.type() != CV_8U) {
+	cv::cvtColor(scaledImage, scaledImage, cv::COLOR_BGR2GRAY);
+    }
 
     cv::flip(scaledImage, scaledImage, 0);
 

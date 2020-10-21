@@ -145,7 +145,7 @@ void playCamera(int cameraId, bool undistort,
 	    undist = frame;
 
 	cv::imshow("Frame", undist);
-	if (cv::waitKey() != -1) {
+	if (cv::waitKey(10) != -1) {
 	    player.play(undist);
 	}
     }

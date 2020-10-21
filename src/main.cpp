@@ -136,7 +136,30 @@ void playCamera(int cameraId, bool undistort,
 
     ImagePlayer player(FREQ_MIN, FREQ_MAX, VOLUME, LINES, COLUMN_TIME);
 
-    cv::Mat frame, undist;
+    cv::Mat frame, undist, warped, transform;
+    std::vector<double> rotationVector = { 0, 0.1, 0 };
+
+    double w = 640;
+    double h = 480;
+    double f = 600;
+    double dist = 0;
+    double alpha = 0;
+
+    std::vector<cv::Point2f> initialCorners =
+	{ cv::Point2f(0.3286458*w, 0.6500000*h),
+	  cv::Point2f(0.6744791*w, 0.6444444*h),
+	  cv::Point2f(0.2265625*w, 0.9583333*h),
+	  cv::Point2f(0.7744791*w, 0.9481481*h) };
+
+    std::vector<cv::Point2f> finalCorners =
+	{ cv::Point2f(0, 0),
+	  cv::Point2f(w, 0),
+	  cv::Point2f(0, h),
+	  cv::Point2f(w, h) };    
+
+    transform = cv::getPerspectiveTransform(initialCorners, finalCorners);
+    std::cout << transform << std::endl;
+    
     while (true) {
 	camera >> frame;
 
@@ -145,9 +168,14 @@ void playCamera(int cameraId, bool undistort,
 	else
 	    undist = frame;
 
-	cv::imshow("Frame", undist);
-	if (cv::waitKey(10) != -1) {
-	    player.play(undist);
+	cv::warpPerspective(undist, warped, transform, undist.size());
+
+	cv::imshow("Frame", warped);
+	int key = cv::waitKey(10);
+	if (key == 27)
+	    return;
+	else if (key != -1) {
+	    player.play(warped);
 	}
     }
 }
@@ -172,6 +200,8 @@ void playImage(std::string imageFile, bool undistort,
 	    cv::remap(frame, undist, map1, map2, cv::INTER_LINEAR);
     else
 	undist = frame;
+
+    
 
     player.play(undist);
 }

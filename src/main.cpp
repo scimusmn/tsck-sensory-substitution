@@ -15,8 +15,8 @@ extern "C" {
 #include "b64/base64.h"
 }
 
-#define FREQ_MIN 100.0
-#define FREQ_MAX 300.0
+#define FREQ_MIN 200.0
+#define FREQ_MAX 500.0
 #define VOLUME 0.5
 #define LINES 80
 #define COLUMN_TIME 0.1
@@ -27,7 +27,8 @@ void printHelp()
 {
     std::cout << "Usage: substitution [OPTIONS] [image file]" << std::endl
 	      << "  -h        Show this help message and exit." << std::endl
-	      << "  -f FILE   Calibration file to use for un-distortion." << std::endl
+	      << "  -f FILE   Calibration file to use for un-distortion. Omitting this option" << std::endl
+	      << "            disables un-distortion." << std::endl
 	      << "  -c ID     Camera to use. This option causes the program to ignore any image" << std::endl
 	      << "            file that may have been passed."
 	      << std::endl;
@@ -41,7 +42,7 @@ bool parseArgs(int argc, char** argv,
 	       std::string& imageFile)
 {
     camera = -1;
-    calibrationFile = "calib.yaml";
+    calibrationFile = "";
 
     opterr = 0;
     int c;

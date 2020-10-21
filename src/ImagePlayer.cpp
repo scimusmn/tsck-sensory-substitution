@@ -144,8 +144,10 @@ float ImagePlayer::getWaveForm()
     float output = 0;
     columnMutex.lock();
     for (int i=0; i<lines; i++) {
-        double frequency = minFreq + i*freqStep;
-        double intensity = 1 - ((double) currentColumn.at<uchar>(i,0))/255;
+	double y = ((double) i) / lines;
+	double yprime = log(y+1) / log(2);
+        double frequency = minFreq + yprime*(maxFreq-minFreq);
+	double intensity = 1 - ((double) currentColumn.at<uchar>(i,0))/255;
         output += volume * intensity * sin(2*PI*frequency*phase);
     }
     columnMutex.unlock();

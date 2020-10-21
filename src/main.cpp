@@ -123,23 +123,22 @@ bool loadMaps(std::string filename,
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-void increaseContrast(cv::Mat in, cv::Mat& out)
+void quadratic(cv::Mat in, cv::Mat& out, double a0, double a1, double a2)
 {
-    double alpha = 2;
-    double beta = 0;
-
-    out = cv::Mat::zeros(in.size(), in.type());
+    cv::Mat result = cv::Mat::zeros(in.size(), in.type());
 
     for (int y=0; y<in.rows; y++) {
 	for (int x=0; x<in.cols; x++) {
-	    int val = alpha*in.at<unsigned char>(y,x) + beta;
+	    unsigned char z = in.at<unsigned char>(y,x);
+	    int val = a0 + a1*z + a2*z*z;
 	    if (val<0)
 		val = 0;
 	    if (val>255)
 		val = 255;
-	    out.at<unsigned char>(y,x) = val;
+	    result.at<unsigned char>(y,x) = val;
 	}
     }
+    result.copyTo(out);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -157,7 +156,7 @@ void playCamera(int cameraId, bool undistort,
 
     ImagePlayer player(FREQ_MIN, FREQ_MAX, VOLUME, LINES, COLUMN_TIME);
 
-    cv::Mat frame, undist, warped, transform, grey, highContrast;
+    cv::Mat frame, undist, warped, transform, grey, highContrast, ultraContrast;
     std::vector<double> rotationVector = { 0, 0.1, 0 };
 
     double w = 640;
@@ -167,10 +166,10 @@ void playCamera(int cameraId, bool undistort,
     double alpha = 0;
 
     std::vector<cv::Point2f> initialCorners =
-	{ cv::Point2f(0.3286458*w, 0.6500000*h),
-	  cv::Point2f(0.6744791*w, 0.6444444*h),
-	  cv::Point2f(0.2265625*w, 0.9583333*h),
-	  cv::Point2f(0.7744791*w, 0.9481481*h) };
+	{ cv::Point2f(0.31354*w, 0.52000*h),
+	  cv::Point2f(0.73802*w, 0.52000*h),
+	  cv::Point2f(0.19791*w, 0.86000*h),
+	  cv::Point2f(0.86562*w, 0.86000*h) };
 
     std::vector<cv::Point2f> finalCorners =
 	{ cv::Point2f(0, 0),
@@ -192,7 +191,22 @@ void playCamera(int cameraId, bool undistort,
 	cv::warpPerspective(undist, warped, transform, undist.size());
 
 	cv::cvtColor(warped, grey, cv::COLOR_BGR2GRAY);
-	increaseContrast(grey, highContrast);
+
+	//linear(grey, highContrast, 1.5, -128);
+	quadratic(grey, highContrast, -64, 1, 0);
+	//cv::erode(highContrast, highContrast, cv::Mat(), cv::Point(-1,-1), 3);
+	//cv::threshold(highContrast, highContrast, 128, 255, cv::THRESH_TOZERO);
+	cv::GaussianBlur(highContrast, highContrast, cv::Size(19,19), 19.0f);
+	quadratic(highContrast, highContrast, -180, 1.5, 0);
+	quadratic(highContrast, highContrast, -128, 3, 1);
+	//cv::dilate(highContrast, highContrast, cv::Mat(), cv::Point(-1,-1), 2);
+	//cv::erode(highContrast, highContrast, cv::Mat(), cv::Point(-1,-1), 4);
+	//quadratic(highContrast, highContrast, -64, 0, 1);
+	
+	//cv::threshold(grey, highContrast, 160, 255, cv::THRESH_TOZERO);
+	//increaseContrast(grey, highContrast);
+	//cv::threshold(highContrast, highContrast, 250, 255, cv::THRESH_TOZERO);
+	//cv::erode(highContrast, highContrast, cv::Mat(), cv::Point(-1, -1), 4);
 
 	cv::imshow("Frame", highContrast);
 	int key = cv::waitKey(10);

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 project(tsck-sensory-substitution C CXX)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 
 find_package(Threads REQUIRED)
 find_package(OpenCV REQUIRED)

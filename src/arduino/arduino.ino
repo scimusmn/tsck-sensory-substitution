@@ -1,27 +1,21 @@
 #include "SerialController.hpp"
+#include "Button.h"
 
 #define BAUDRATE 115200
+#define BUTTON_PIN 7
+
 SerialController serial;
-unsigned long time, prevTime;
-unsigned long totalTime;
+Button button;
 
 void setup()
 {
     serial.setup(BAUDRATE, onParse);
+    button.setup(BUTTON_PIN, [](int state) { serial.sendMessage("button", state); });
 }
 
 void loop()
 {
-    time = millis();
-    unsigned int dt = time - prevTime;
-    prevTime = time;
-
-    totalTime += dt;
-    if (totalTime > 1000) {
-	totalTime = 0;
-	serial.sendMessage("time", time);
-    }
-    
+    button.update();
     serial.update();
 }
 

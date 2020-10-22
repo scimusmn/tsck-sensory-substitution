@@ -33,10 +33,13 @@ public:
     /* @brief Play an image as audio.
      *
      * @param image An OpenCV matrix containing the image to play.
+     * @param screenWidth The width of the screen.
+     * @param screenHeight The height of the screen.
+     * @param windowName The name of the window to display on.
      *
      * @returns true if the operation was successful; false if an error occurred.
      */
-    bool play(cv::Mat image);
+    bool play(cv::Mat image, int screenWidth, int screenHeight, std::string windowName);
 
     static int audioCallback(const void* inputBuffer,
                              void* outputBuffer,

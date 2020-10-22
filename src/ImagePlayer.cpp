@@ -26,15 +26,16 @@ ImagePlayer::ImagePlayer(double minimumFrequency,
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-bool ImagePlayer::play(cv::Mat image)
+bool ImagePlayer::play(cv::Mat image, int screenWidth, int screenHeight, std::string windowName)
 {
     // scale image so that it has [lines] rows, and convert to grayscale.
     double scaling = double(lines)/image.rows;
     int resizedRows = lines;
     int resizedCols = scaling * image.cols;
     cv::Size newSize(resizedCols, resizedRows);
-    cv::Mat scaledImage;
+    cv::Mat scaledImage, display;
     cv::resize(image, scaledImage, newSize, 0, 0, cv::INTER_AREA);
+    cv::resize(image, display, cv::Size(screenWidth, screenHeight), 0, 0, cv::INTER_LINEAR);
     if (scaledImage.type() != CV_8U) {
 	cv::cvtColor(scaledImage, scaledImage, cv::COLOR_BGR2GRAY);
     }
@@ -71,6 +72,8 @@ bool ImagePlayer::play(cv::Mat image)
         return false;
     }
 
+    double lineStep = ((double) screenWidth) / scaledImage.cols;
+    
     // play audio for each column
     std::chrono::duration<double> timePerColumn(columnTime);
 
@@ -79,17 +82,16 @@ bool ImagePlayer::play(cv::Mat image)
         currentColumn = scaledImage.col(i);
         columnMutex.unlock();
 
-        cv::Mat frame = scaledImage.clone();
+        cv::Mat frame = display.clone();
 
         cv::line(frame,
-                 cv::Point(i, 0),
-                 cv::Point(i, lines-1),
+                 cv::Point(i*lineStep, 0),
+                 cv::Point(i*lineStep, screenHeight-1),
                  128);
 
         cv::resize(frame, frame, cv::Size(), 4, 4, cv::INTER_NEAREST);
-        cv::flip(frame, frame, 0);
         
-        cv::imshow("image", frame);
+        cv::imshow(windowName, frame);
         cv::waitKey(1);
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();

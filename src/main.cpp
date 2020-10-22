@@ -2,6 +2,12 @@
 #include <vector>
 #include <mutex>
 
+#if WIN32
+  #include <windows.h>
+#else
+  #include <X11/Xlib.h>
+#endif
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
@@ -16,11 +22,14 @@ extern "C" {
 #include "b64/base64.h"
 }
 
+// ugly globals!!
+bool buttonPressed, playing;
+
 #define FREQ_MIN 200.0
 #define FREQ_MAX 1000.0
 #define VOLUME 0.5
 #define LINES 80
-#define COLUMN_TIME 0.05
+double COLUMN_TIME=0.01;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -31,8 +40,23 @@ void printHelp()
 	      << "  -f FILE   Calibration file to use for un-distortion. Omitting this option" << std::endl
 	      << "            disables un-distortion." << std::endl
 	      << "  -c ID     Camera to use. This option causes the program to ignore any image" << std::endl
-	      << "            file that may have been passed."
+	      << "            file that may have been passed." << std::endl
+	      << "  -t TIME   The column time to use."
 	      << std::endl;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void getScreenSize(int& width, int& height) {
+#if WIN32
+    width  = (int) GetSystemMetrics(SM_CXSCREEN);
+    height = (int) GetSystemMetrics(SM_CYSCREEN);
+#else
+    Display* disp = XOpenDisplay(NULL);
+    Screen*  scrn = DefaultScreenOfDisplay(disp);
+    width  = scrn->width;
+    height = scrn->height;
+#endif
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +72,7 @@ bool parseArgs(int argc, char** argv,
     opterr = 0;
     int c;
 
-    while( (c = getopt(argc, argv, "hc:f:")) != -1) {
+    while( (c = getopt(argc, argv, "ht:c:f:")) != -1) {
 	switch (c) {
 	case 'h':
 	    return false;
@@ -66,6 +90,17 @@ bool parseArgs(int argc, char** argv,
 
 	case 'f':
 	    calibrationFile = optarg;
+	    break;
+
+	case 't':
+	    try { COLUMN_TIME = std::stof(optarg); }
+	    catch(std::invalid_argument err) {
+		std::cerr << "ERROR: '"
+			  << optarg
+			  << "' is not a valid number!"
+			  << std::endl;
+		return false;
+	    }
 	    break;
 
 	case '?':
@@ -149,8 +184,15 @@ void playCamera(int cameraId, bool undistort,
 {
     // open arduino port
     ArduinoSerial arduino;
+    buttonPressed = false;
+    playing = false;
     arduino.setDataCallback
-	([](std::string key, std::string value) { std::cout << key << ": " << value << std::endl; });
+	([](std::string key, std::string value) {
+	    if (key == "button" && value == "1" && !playing)
+		buttonPressed = true;
+	    else
+		buttonPressed = false;
+	});
 
     try {
 	auto portList = arduino.findMatchingPorts(METRO_MINI_VID, METRO_MINI_PID);
@@ -175,9 +217,16 @@ void playCamera(int cameraId, bool undistort,
 	return;
     }
 
+    int screenWidth, screenHeight;
+    getScreenSize(screenWidth, screenHeight);
+
+    std::string windowName = "Sensory Substitution";
+    cv::namedWindow(windowName, cv::WINDOW_NORMAL);
+    cv::setWindowProperty(windowName, cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
+    
     ImagePlayer player(FREQ_MIN, FREQ_MAX, VOLUME, LINES, COLUMN_TIME);
 
-    cv::Mat frame, undist, warped, transform, grey, highContrast;
+    cv::Mat frame, undist, warped, transform, grey, highContrast, display;
     std::vector<double> rotationVector = { 0, 0.1, 0 };
 
     double w = 640;
@@ -186,6 +235,7 @@ void playCamera(int cameraId, bool undistort,
     double dist = 0;
     double alpha = 0;
 
+    
     std::vector<cv::Point2f> initialCorners =
 	{ cv::Point2f(0.23*w, 0.50000*h),
 	  cv::Point2f(0.84*w, 0.50000*h),
@@ -219,14 +269,20 @@ void playCamera(int cameraId, bool undistort,
 	cv::GaussianBlur(highContrast, highContrast, cv::Size(19,19), 2.0f);
 	quadratic(highContrast, highContrast, -220, 2, 0);
 
-	cv::imshow("Frame", highContrast);
+	cv::resize(highContrast, display, cv::Size(screenWidth, screenHeight), 0, 0, cv::INTER_LINEAR);
+	
+	cv::imshow(windowName, display);
 
 	int key = cv::waitKey(10);
-	arduino.update();
 	if (key == 27)
 	    return;
-	else if (key != -1) {
-	    player.play(highContrast);
+
+	arduino.update();
+	if (buttonPressed) {
+	    buttonPressed = false;
+	    playing = true;
+	    player.play(highContrast, screenWidth, screenHeight, windowName);
+	    playing = false;
 	}
     }
 }
@@ -238,6 +294,13 @@ void playImage(std::string imageFile, bool undistort,
 {
     ImagePlayer player(FREQ_MIN, FREQ_MAX, VOLUME, LINES, COLUMN_TIME);
 
+    int screenWidth, screenHeight;
+    getScreenSize(screenWidth, screenHeight);
+
+    std::string windowName = "Sensory Substitution";
+    cv::namedWindow(windowName, cv::WINDOW_NORMAL);
+    cv::setWindowProperty(windowName, cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
+    
     cv::Mat frame, undist;
     frame = cv::imread(imageFile);
     if (frame.empty()) {
@@ -252,9 +315,7 @@ void playImage(std::string imageFile, bool undistort,
     else
 	undist = frame;
 
-    
-
-    player.play(undist);
+    player.play(undist, screenWidth, screenHeight, windowName);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

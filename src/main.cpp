@@ -16,10 +16,10 @@ extern "C" {
 }
 
 #define FREQ_MIN 200.0
-#define FREQ_MAX 500.0
+#define FREQ_MAX 1000.0
 #define VOLUME 0.5
 #define LINES 80
-#define COLUMN_TIME 0.1
+#define COLUMN_TIME 0.05
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -166,10 +166,10 @@ void playCamera(int cameraId, bool undistort,
     double alpha = 0;
 
     std::vector<cv::Point2f> initialCorners =
-	{ cv::Point2f(0.31354*w, 0.52000*h),
-	  cv::Point2f(0.73802*w, 0.52000*h),
-	  cv::Point2f(0.19791*w, 0.86000*h),
-	  cv::Point2f(0.86562*w, 0.86000*h) };
+	{ cv::Point2f(0.23*w, 0.50000*h),
+	  cv::Point2f(0.84*w, 0.50000*h),
+	  cv::Point2f(0.09*w, 0.88000*h),
+	  cv::Point2f(0.99*w, 0.88000*h) };
 
     std::vector<cv::Point2f> finalCorners =
 	{ cv::Point2f(0, 0),
@@ -192,21 +192,11 @@ void playCamera(int cameraId, bool undistort,
 
 	cv::cvtColor(warped, grey, cv::COLOR_BGR2GRAY);
 
-	//linear(grey, highContrast, 1.5, -128);
-	quadratic(grey, highContrast, -64, 1, 0);
-	//cv::erode(highContrast, highContrast, cv::Mat(), cv::Point(-1,-1), 3);
-	//cv::threshold(highContrast, highContrast, 128, 255, cv::THRESH_TOZERO);
-	cv::GaussianBlur(highContrast, highContrast, cv::Size(19,19), 19.0f);
-	quadratic(highContrast, highContrast, -180, 1.5, 0);
-	quadratic(highContrast, highContrast, -128, 3, 1);
-	//cv::dilate(highContrast, highContrast, cv::Mat(), cv::Point(-1,-1), 2);
-	//cv::erode(highContrast, highContrast, cv::Mat(), cv::Point(-1,-1), 4);
-	//quadratic(highContrast, highContrast, -64, 0, 1);
+	cv::flip(grey, grey, -1);
 	
-	//cv::threshold(grey, highContrast, 160, 255, cv::THRESH_TOZERO);
-	//increaseContrast(grey, highContrast);
-	//cv::threshold(highContrast, highContrast, 250, 255, cv::THRESH_TOZERO);
-	//cv::erode(highContrast, highContrast, cv::Mat(), cv::Point(-1, -1), 4);
+	quadratic(grey, highContrast, -128, 1.8, 0);
+	cv::GaussianBlur(highContrast, highContrast, cv::Size(19,19), 2.0f);
+	quadratic(highContrast, highContrast, -220, 2, 0);
 
 	cv::imshow("Frame", highContrast);
 	int key = cv::waitKey(10);

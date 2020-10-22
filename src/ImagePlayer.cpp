@@ -149,8 +149,9 @@ float ImagePlayer::getWaveForm()
 	double y = ((double) i) / lines;
 	double yprime = log(y+1) / log(2);
         double frequency = minFreq + yprime*(maxFreq-minFreq);
-	double intensity = 1 - ((double) currentColumn.at<uchar>(i,0))/255;
-	if (intensity < 0.25)
+	double darkness = 1 - (double) currentColumn.at<uchar>(i,0)/255;
+	double intensity = (darkness - 0.25) / 0.75;
+	if (intensity < 0)
 	    intensity = 0;
         output += volume * intensity * sin(2*PI*frequency*phase);
     }

@@ -17,7 +17,7 @@ extern "C" {
 class ImagePlayer
 {
 public:
-    /* @brief (constructor)
+    /** @brief (constructor)
      *
      * @param minimumFrequency Frequency to use for the lowest line.
      * @param maximumFrequency Frequency to use for the highest line.

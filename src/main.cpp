@@ -8,6 +8,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 
+#include "ArduinoSerial.hpp"
 #include "ImagePlayer.hpp"
 
 extern "C" {
@@ -146,6 +147,26 @@ void quadratic(cv::Mat in, cv::Mat& out, double a0, double a1, double a2)
 void playCamera(int cameraId, bool undistort,
 		cv::Mat map1, cv::Mat map2)
 {
+    // open arduino port
+    ArduinoSerial arduino;
+    arduino.setDataCallback
+	([](std::string key, std::string value) { std::cout << key << ": " << value << std::endl; });
+
+    try {
+	auto portList = arduino.findMatchingPorts(METRO_MINI_VID, METRO_MINI_PID);
+	if (portList.size() > 0)
+	    arduino.openPort(portList[0], 115200);
+	else {
+	    std::cerr << "FATAL: could not find arduino!" << std::endl;
+	    return;
+	}
+    }
+    catch(std::runtime_error error) {
+	std::cerr << "FATAL: " << error.what() << std::endl;
+	return;
+    }
+
+    // open camera
     cv::VideoCapture camera(cameraId);
     if (!camera.isOpened()) {
 	std::cerr << "ERROR: could not open camera '"
@@ -156,7 +177,7 @@ void playCamera(int cameraId, bool undistort,
 
     ImagePlayer player(FREQ_MIN, FREQ_MAX, VOLUME, LINES, COLUMN_TIME);
 
-    cv::Mat frame, undist, warped, transform, grey, highContrast, ultraContrast;
+    cv::Mat frame, undist, warped, transform, grey, highContrast;
     std::vector<double> rotationVector = { 0, 0.1, 0 };
 
     double w = 640;
@@ -199,7 +220,9 @@ void playCamera(int cameraId, bool undistort,
 	quadratic(highContrast, highContrast, -220, 2, 0);
 
 	cv::imshow("Frame", highContrast);
+
 	int key = cv::waitKey(10);
+	arduino.update();
 	if (key == 27)
 	    return;
 	else if (key != -1) {

@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
 	    handCenter = 0.6*handCenter + 0.4*average(defectPoints);
 	    cv::circle(frame, handCenter, 5, cv::Scalar(255,128,0), 2, 8);
 	    hand->setVolume(0.1);
-	    hand->update(handCenter.x, handCenter.y);
+	    hand->update(((double)handCenter.x)/frame.cols, ((double)handCenter.y)/frame.rows);
 	    std::cout << handCenter << std::endl;
 	}
 	else
@@ -198,13 +198,13 @@ int main(int argc, char** argv) {
     error = Pa_StopStream(audioStream);
     if (error != paNoError) {
 	std::cerr << "[INDICATOR] ERROR: failed to stop audio stream!" << std::endl;
-	return;
+	return 1;
     }
 
     error = Pa_CloseStream(audioStream);
     if (error != paNoError) {
 	std::cerr << "[INDICATOR] ERROR: failed to close audio stream!" << std::endl;
-	return;
+	return 1;
     }
 
     Pa_Terminate();

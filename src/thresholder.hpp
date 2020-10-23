@@ -28,7 +28,7 @@ public:
         cv::FileStorage fs;
         fs.open(settingsFilename.c_str(), cv::FileStorage::READ);
         if (!fs.isOpened()) {
-            std::cerr << "ERROR: failed to open settings file '"
+            std::cerr << "[THRESHOLDER] ERROR: failed to open settings file '"
                       << settingsFilename << "'; using default values instead."
                       << std::endl;
             setDefaultValues();
@@ -37,7 +37,7 @@ public:
 
         cv::FileNode node = fs[thresholderName.c_str()];
         if (node.empty()) {
-            std::cerr << "ERROR: failed to find node '"
+            std::cerr << "[THRESHOLDER] ERROR: failed to find node '"
                       << thresholderName << "'; using default values instead."
                       << std::endl;
             setDefaultValues();
@@ -58,16 +58,7 @@ public:
         fs.release();
     }
 
-    void saveSettings(std::string settingsFilename, std::string thresholderName) {
-        cv::FileStorage fs;
-        fs.open(settingsFilename, cv::FileStorage::WRITE);
-        if (!fs.isOpened()) {
-            std::cerr << "ERROR: failed to open settings file '"
-                      << settingsFilename << "'; could not save settings!"
-                      << std::endl;
-            return;
-        }
-        
+    void saveSettings(cv::FileStorage& fs, std::string thresholderName) {
         fs << thresholderName << "{";
         fs << "hue_minimum"        << hMin;  
         fs << "saturation_minimum" << sMin;  
@@ -80,8 +71,6 @@ public:
         fs << "erosions"  << erosions;
         fs << "dilations" << dilations;
         fs << "}";
-
-        fs.release();
     }
 
     void printValues() {

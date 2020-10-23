@@ -1,0 +1,20 @@
+%YAML:1.0
+---
+ball:
+   hue_minimum: 29
+   saturation_minimum: 132
+   value_minimum: 0
+   hue_maximum: 140
+   saturation_maximum: 255
+   value_maximum: 153
+   erosions: 1
+   dilations: 3
+hand:
+   hue_minimum: 0
+   saturation_minimum: 57
+   value_minimum: 0
+   hue_maximum: 178
+   saturation_maximum: 255
+   value_maximum: 255
+   erosions: 0
+   dilations: 2

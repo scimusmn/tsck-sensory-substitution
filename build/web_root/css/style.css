@@ -1,0 +1,181 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+body {
+    --primary: #1387FF;
+    --sat: #22AEF1;
+    --unsat: #7BBCFF;
+    --light: white;
+    --grey: #ccc;
+    --dark: #121221;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+button {
+    background-color: var(--primary);
+    color: var(--light);
+    border: 0px;
+}
+
+.noscript {
+    position: fixed;
+    font-size: 2em;
+    z-index: 2;
+}
+
+a {
+    color: var(--primary);
+}
+
+input[type=number] {
+    width: 200px;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.bg-light {
+    background-color: var(--light);
+    color: var(--dark);
+}
+
+.bg-primary {
+    background-color: var(--primary);
+    color: var(--light);
+}
+
+.bg-primary a {
+    color: var(--light);
+    text-decoration: none;
+}
+
+.bg-primary a:hover {
+    color: var(--primary);
+    background-color: var(--light);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.mx-1 {
+    margin: 0 10px 0 10px;
+}
+
+.m-1 {
+    margin: 10px;
+}
+
+.p-1 {
+    padding: 10px;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.border-primary {
+    border: 2px solid var(--primary);
+    border-radius: 4px;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.navbar {
+    padding: 10px 20px 10px 10px;
+    position: sticky;
+    z-index: 10;
+}
+
+.navbar ul {
+    float: right;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.circle-range-select {
+    display: none
+}
+
+.circle-range-select-wrapper {
+    position: relative;
+    max-width: 100%;
+    width: 150px;
+    height: 150px;
+    margin: 12px;
+    padding: 12px !important;
+    border-radius: 50%;
+    border: 6px solid var(--grey);
+    cursor: default
+}
+
+.circle-range-select-wrapper .handle {
+    position: absolute;
+    z-index: 2;
+    width: 0;
+    height: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer
+}
+
+.circle-range-select-wrapper .handle:before {
+    content: '';
+    position: absolute;
+    z-index: 3;
+    top: -9px;
+    left: -9px;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background: var(--dark);
+}
+
+.circle-range-select-wrapper .selected-range {
+    position: absolute;
+    z-index: 1;
+    color:  var(--primary);
+}
+
+.circle-range-select-wrapper .values {
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 0;
+    right: 0;
+    margin-top: -.5em;
+    text-align: center
+}
+
+.circle-range-select-wrapper .values span {
+    margin: 0 10px 0 10px;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* custom jquery.range theme */
+
+.theme-config .back-bar {
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--grey);
+}
+
+.theme-config .back-bar .selected-bar {
+    background-color: var(--primary);
+}
+
+.theme-config .back-bar .pointer {
+    width: 12px;
+    height: 12px;
+    top: -3px;
+    border-radius: 50%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: var(--dark);
+}
+.theme-config .back-bar .pointer-label {
+    color: var(--grey);
+}
+.theme-config .back-bar .focused {
+    color: var(--dark);
+}

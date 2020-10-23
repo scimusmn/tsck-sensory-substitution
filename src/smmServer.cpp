@@ -87,7 +87,7 @@ bool smmServer::beginServer() {
   mg_mgr_init(&eventManager, this);
   connection = mg_bind(&eventManager, httpPort, handleEvent);
   if (connection == NULL) {
-    std::cerr << "FATAL: mg_bind() failed! Is something else using the port?\n";
+    std::cerr << "[SMM WEBCONFIG] FATAL: mg_bind() failed! Is something else using the port?\n";
     running = false;
     return false;
   }
@@ -179,7 +179,7 @@ callback_t smmServer::retrievePostCallback(std::string name) {
     cb = postCallbackMap.at(name);
   }
   catch(std::out_of_range err) {
-    std::cerr << "error: could not find POST callback with key '" << name <<"'" << std::endl;
+    std::cerr << "[SMM WEBCONFIG] ERROR: could not find POST callback with key '" << name <<"'" << std::endl;
     postCallbackMutex.unlock();
     return NULL;
   }
@@ -212,7 +212,7 @@ callback_t smmServer::retrieveGetCallback(std::string name) {
     cb = getCallbackMap.at(name);
   }
   catch(std::out_of_range err) {
-    std::cerr << "error: could not find GET callback with key '" << name <<"'" << std::endl;
+    std::cerr << "[SMM WEBCONFIG] ERROR: could not find GET callback with key '" << name <<"'" << std::endl;
     getCallbackMutex.unlock();
     return NULL;
   }

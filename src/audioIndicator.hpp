@@ -36,8 +36,6 @@ private:
     unsigned int m_amplitudeSamples;
     unsigned int m_amplitudeIndex;
     
-    PaStream* audioStream;
-
     void recalculate() {
         float fractionalTime = (float) m_index / m_samples;
         m_samples = SAMPLE_RATE/m_frequency;
@@ -66,49 +64,12 @@ public:
         m_index = 0;
 
         recalculate();
-
-        PaError error;
-        error = Pa_Initialize();
-        if (error != paNoError) {
-            std::cerr << "ERROR: failed to initialize PortAudio!" << std::endl;
-            return;
-        }
-
-        error = Pa_OpenDefaultStream(&audioStream,
-                                     0, 2, paFloat32,
-                                     SAMPLE_RATE,
-                                     256,
-                                     sine_callback,
-                                     this);
-        if (error != paNoError) {
-            std::cerr << "ERROR: failed to open audio stream!" << std::endl;
-            return;
-        }
-
-        error = Pa_StartStream(audioStream);
-        if (error != paNoError) {
-            std::cerr << "ERROR: failed to start audio stream!" << std::endl;
-            return;
-        }
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     ~AudioIndicator() {
-        PaError error;
-        error = Pa_StopStream(audioStream);
-        if (error != paNoError) {
-            std::cerr << "ERROR: failed to stop audio stream!" << std::endl;
-            return;
-        }
-
-        error = Pa_CloseStream(audioStream);
-        if (error != paNoError) {
-            std::cerr << "ERROR: failed to close audio stream!" << std::endl;
-            return;
-        }
-
-        Pa_Terminate();
+	
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
